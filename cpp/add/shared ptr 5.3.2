@@ -1,0 +1,79 @@
+struct Expression;
+struct Number;
+struct BinaryOperation;
+
+struct SharedPtr
+{
+public:
+
+	explicit SharedPtr(Expression *ptr = 0) {
+		this->ptr = ptr;
+		if (this->ptr) {
+			counter = new int(1);			
+		}
+		else counter = 0;
+	}
+
+	~SharedPtr() {
+		decrement_count();	
+	}
+    
+	Expression* get() const {
+		return ptr;
+	}
+
+	Expression& operator*() const {
+		return *ptr;
+	}
+
+	Expression* operator->() const {
+		return ptr;
+	}
+
+	void reset(Expression *ptr = 0) {
+		if (this->ptr != ptr) {
+			decrement_count();
+			this->ptr = ptr;			
+			if (ptr) {
+				counter = new int(0);				
+					(*counter)++;
+			}			
+		}
+	}
+
+	SharedPtr(const SharedPtr & other) {		
+			this->ptr = other.ptr;
+			counter = other.counter;
+			if (ptr) {
+				(*counter)++;
+			}			
+	}
+
+	void decrement_count() {
+		if (counter && ptr && !--(*counter)) {
+			delete ptr;
+			delete counter;		
+			counter = 0;
+        }
+	}
+	
+	SharedPtr& operator=(SharedPtr & other) {
+		if (this->ptr == other.ptr) {}
+		else {
+			decrement_count();
+			this->ptr = other.ptr;		
+			counter = other.counter;
+			if (other.ptr) {
+				(*counter)++;
+			}
+		}
+		return *this;
+	}	
+	
+	
+
+private:
+	 int *counter ;
+
+	Expression *ptr;
+};
